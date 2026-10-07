@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "qr": {
+      "command": "python",
+      "args": ["mcp-servers/qr/server.py"]
+    }
+  }
+}
