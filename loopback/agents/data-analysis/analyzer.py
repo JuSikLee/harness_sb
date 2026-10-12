@@ -5,7 +5,7 @@ import re
 import anthropic
 
 MODEL = "claude-sonnet-5-5"
-TOKEN_LIMIT = 200,000
+TOKEN_LIMIT = 200_000
 
 SYSTEM_PROMPT = "당신은 5년 차 데이터 분석가입니다. 모든 분석은 전월 대비 기준으로 합니다."
 
