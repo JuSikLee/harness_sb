@@ -110,7 +110,7 @@ class ContextManager:
         self.ctx.last_result = summarize200(self.ctx.last_result)
         moved = self.flush_notes(wm, keep_last=1)
         self.compressed = True
-        return f"압축 적용 (세션 토큰 {self.session_tokens:,}, 노트 {moved}건 notes.md로 이관)"
+        return f"[압축된] 압축 적용 (세션 토큰 {self.session_tokens:,}, 노트 {moved}건 notes.md로 이관)"
 
     def reflect(self, wm):
         """새 세션으로 재시작: 진행 핵심을 시스템 프롬프트에 붙이고 단기 메모리는 비운다."""
