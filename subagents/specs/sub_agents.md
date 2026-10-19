@@ -21,13 +21,62 @@
 - 도구: Read (자료 본문 재확인용)
 
 ## 2. 핸드오프 형식 (서브 에이전트 간 데이터 전달)
-(여기에 작성)
+
+### searcher → summarizer
+searcher는 다음 형식의 JSON 배열을 반환한다:
+```json
+[
+    { "id": "S1", "source_type": "arxiv", "url": "...", "snippet": "~200자" },
+    { "id": "S2", "source_type": "blog", "url": "...", "snippet": "~200자" }
+]
+```
+id는 "S1" · "S2" 처럼 짧게 부여한다. summarizer는 출처 표시에 이 id를 그대로 쓴다.
+
+### summarizer → verifier
+summarizer는 다음 형식의 객체를 반환한다:
+```jsonc
+{
+    "summary": "~300자 한국어 본문. 사실 주장마다 [S1] / [S2] 형태로 출처 표시.",
+    "sources": ["S1", "S2"]  // 본문에서 참조한 자료 id 목록
+}
+```
+verifier는 summary 본문의 [Sx] 표시를 추출해 sources 목록과 일치하는지 먼저 확인한다.
+
+### verifier → orchestrator (사용자)
+verifier는 다음 형식의 객체를 반환한다:
+```jsonc
+{
+    "status": "pass" 또는 "fail",
+    "comment": "통과면 짧은 코멘트, 실패 시 문제 항목 목록과 수정 지침",
+    "issues": ["본문에 [S3] 표시가 있지만 sources에 S3 없음"]  // status가 fail일 때만
+}
+```
 
 ## 3. 오케스트레이션 흐름
-(여기에 작성)
+
+1. 사용자가 자연어로 주제를 입력한다 (예: "AI 코딩 보조 도구의 안전 위험").
+2. 메인 세션(오케스트레이터)이 주제를 키워드 3개 이내로 정리한다.
+3. searcher 서브 에이전트를 Task 도구로 호출한다. 입력: 주제 한 문장 + 키워드. 출력: 자료 N건.
+4. searcher가 자료 0건을 반환하면 사용자에게 "자료를 찾지 못했습니다"라고 알리고 종료한다 (재시도하지 않는다 - 검색이 빈 결과를 줄 만한 주제는 데이터의 문제이지 서브 에이전트의 문제가 아니다).
+5. summarizer 서브 에이전트를 Task 도구로 호출한다. 입력: searcher가 반환한 자료 N건. 출력: 요약 객체.
+6. verifier 서브 에이전트를 Task 도구로 호출한다. 입력: summarizer가 반환한 요약 + searcher가 반환한 자료 N건. 출력: 검증 결과 객체.
+7. verifier가 "pass"를 반환하면 사용자에게 요약 + 출처 목록 + 통과 표시를 반환한다.
+8. verifier가 "fail"을 반환하면 § 4 부분 실패 · 재시도 정책에 따른다.
+
+주의: searcher → summarizer → verifier는 한 방향이다. summarizer가 자료가 부족하다고 판단해 다시 searcher를 부르는 것은 허용하지 않는다 - 그 결정은 오케스트레이터가 verifier 결과를 보고 내린다.
 
 ## 4. 부분 실패 · 재시도 정책
-(여기에 작성)
+
+### 4.1 verifier가 fail을 반환했을 때
+1. issues 목록을 "수정 지침" 형태로 정리한다.(예: "본문에 [S3] 표시가 있지만 sources에 S3 없음 → 본문에서 S3 제거하거나 sources에 S3 추가").
+2. summarizer를 한 번 더 호출한다. 입력: searcher가 반환한 원본 자료 + 이전 요약 + verifier 코멘트.
+3. 두 번째 verifier 결과가 pass면 사용자에게 반환한다. fail이면 에스컬레이션(§4.2).
+4. searcher는 재호출하지 않는다 - verifier가 지적한 문제는 거의 항상 요약 단계의 문제이지 자료 부족 문제가 아니다.
+
+### 4.2 에스컬레이션 - 한 번 재시도해도 실패할 때
+- 사용자에게 "검증을 두 번 시도했지만 통과하지 못했습니다"라고 알리고, 마지막 요약 + verifier가 마지막에 지적한 issues 목록을 함께 보여준다.
+- 자동으로 한 번 더 시도하지 않는다 - 같은 문제가 반복된다는 신호이고, 이때는 사람의 판단이 필요하다.
+- 로그 파일(runs/run_{timestamp}.json)에 전체 흐름(검색 결과 · 각 시도의 요약 · 각 verifier 코멘트)을 남긴다.
 
 ## 5. 검증 기준 (verifier 합격선)
 (여기에 작성)
