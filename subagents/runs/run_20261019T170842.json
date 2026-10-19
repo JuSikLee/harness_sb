@@ -1,0 +1,7 @@
+{
+  "topic": "존재하지 않는 신기술 ZXAB-7의 동향",
+  "log": "[EARLY EXIT] searcher 결과 0건 → 파이프라인 중단, 토큰 소비: searcher만",
+  "searcher_result": [],
+  "calls": { "searcher": 1, "summarizer": 0, "verifier": 0 },
+  "subagent_tokens": { "searcher": 7063 }
+}
