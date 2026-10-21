@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-21",
+  "input": [
+    "inputs/draft.md",
+    "inputs/author_intent.md"
+  ],
+  "output": "outputs/review_2026-10-21_v2_01.docx",
+  "result": "fail",
+  "deterministic": [
+    {
+      "rule": 1,
+      "name": "4개 섹션 존재",
+      "result": "pass",
+      "comment": "모두 존재"
+    },
+    {
+      "rule": 2,
+      "name": "진단 4항목+등급",
+      "result": "pass",
+      "comment": "4항목 모두 등급 기호 있음"
+    },
+    {
+      "rule": 3,
+      "name": "수정안 3~5개·세 부분",
+      "result": "pass",
+      "comment": "4개, 모두 형식 충족"
+    },
+    {
+      "rule": 4,
+      "name": "헤더 면책 문구",
+      "result": "pass",
+      "comment": "있음"
+    }
+  ],
+  "inference": [
+    {
+      "rule": 5,
+      "name": "인용문 원문 일치",
+      "result": "pass",
+      "comment": "8개 인용문 모두 원문에 공백·구두점까지 동일하게 존재하며, 기계 검사의 불일치 목록 []과도 일치합니다. / 검사된 인용 8개(기대 8개)"
+    },
+    {
+      "rule": 6,
+      "name": "등급-코멘트 일관성",
+      "result": "pass",
+      "comment": "4개 항목 모두 △이며, 각 코멘트가 다듬으면 좋은 수준의 지적(연결 형태, 일반화 표현, 단정적 어조, 수치 근거 부족)으로 △의 정의에 부합하고 ★ 수준의 오해·비문 문제는 아님."
+    },
+    {
+      "rule": 7,
+      "name": "어조",
+      "result": "fail",
+      "comment": "수정안 3의 '그렇게 한 걸음씩 넓혀 가시기 바랍니다'는 '~하세요'와 같은 지시·권유형 어미로, 선생이 학생에게 말하는 듯한 어조입니다."
+    }
+  ],
+  "step_log": [
+    "step1 문장 36개, 의도 키 ['독자', '톤', '분량', '발행처', '목적']",
+    "step2 진단 성공 항목: ['문법', '논리', '톤', '근거']",
+    "step3 수정 대상 인덱스: [31, 16, 35, 6]",
+    "step4 수정안 4개",
+    "step5 출력: outputs/review_2026-10-21_v2_01.docx"
+  ]
+}
