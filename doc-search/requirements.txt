@@ -1,0 +1,8 @@
+sentence-transformers
+numpy
+scikit-learn
+anthropic
+python-docx
+openpyxl
+pdfplumber
+voyageai
