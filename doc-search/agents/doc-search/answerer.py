@@ -62,3 +62,26 @@ def generate(question, hits, diagnostic=None):
     start = text.index("{")
     obj, _ = json.JSONDecoder().raw_decode(text[start:])
     return obj, msg.usage.input_tokens + msg.usage.output_tokens
+
+
+EXTERNAL_SYSTEM = (
+    "당신은 외부 웹 검색 결과를 요약하는 어시스턴트입니다. 제공된 검색 결과에 있는 내용만 사용해 "
+    "질문에 3문장 이내로 한국어로 답하세요. 문장마다 근거가 된 결과 번호를 [1] 형식으로 표시하고, "
+    "결과에 답이 없으면 '외부 검색 결과에서도 확인되지 않음'이라고만 답하세요. 답변 본문만 출력하세요."
+)
+
+
+def generate_external(question, results):
+    """Tavily 상위 결과 → 외부 출처 기반 답변(텍스트). (text, tokens) 반환."""
+    context = "\n\n".join(
+        f"[{i}] {r.get('title', '')} ({r.get('url', '')})\n{(r.get('content') or '')[:1500]}"
+        for i, r in enumerate(results, 1)
+    )
+    client = anthropic.Anthropic(timeout=40)
+    msg = client.messages.create(
+        model=os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6"),
+        max_tokens=600,
+        system=EXTERNAL_SYSTEM,
+        messages=[{"role": "user", "content": f"질문: {question}\n\n검색 결과:\n{context}"}],
+    )
+    return msg.content[0].text.strip(), msg.usage.input_tokens + msg.usage.output_tokens

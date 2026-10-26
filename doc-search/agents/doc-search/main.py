@@ -5,6 +5,7 @@ import json
 import os
 import sys
 import time
+import requests
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -28,6 +29,10 @@ ABBR_FILE = MEM_DIR / "long_term" / "abbreviations.md"
 SEARCHED = "faq/ · hr/ · onboarding/ · operations/ (harness-book-samples/doc-search)"
 MAX_RETRY = 2
 TOKEN_LIMIT = 20000
+INTERNAL_KEYWORDS = ["회사", "정책", "우리", "사내"]
+INTERNAL_ONLY_MSG = "사내 답변 권장 - HR 직접 문의"
+EXTERNAL_FOOTER = "외부 출처. 사내 정책과 다를 수 있음"
+TAVILY_URL = "https://api.tavily.com/search"
 
 
 def qhash(q):
@@ -64,6 +69,38 @@ def render(question, r, masked):
     rel = "\n".join(f"- {x['doc']}: {x['reason']}" for x in r.get("related", [])) or "- (없음)"
     fol = "\n".join(f"- {x}" for x in r.get("followups", [])) or "- (없음)"
     return fix(f"# 검색 결과\n\n질문: {question}\n\n## 핵심 답변\n{r['answer']}\n\n## 근거 인용\n{cites}\n\n## 관련 문서 추천\n{rel}\n\n## 추가 질문 제안\n{fol}\n")
+
+
+def tavily_search(question, k=3):
+    """Tavily 상위 k개 결과. TAVILY_API_KEY 없으면 RuntimeError."""
+    key = os.environ.get("TAVILY_API_KEY")
+    if not key:
+        raise RuntimeError("TAVILY_API_KEY 환경 변수가 설정되지 않음")
+    r = requests.post(TAVILY_URL, headers={"Authorization": f"Bearer {key}"},
+                      json={"query": question, "max_results": k}, timeout=20)
+    r.raise_for_status()
+    return r.json().get("results", [])[:k]
+
+
+def external_fallback(question, h, grade, internal_reason):
+    """사내 정보 없음 → Tavily 검색 → answerer 답변. 사내 정책성 질문이면 호출하지 않는다."""
+    if any(t in question for t in INTERNAL_KEYWORDS):
+        return write_no_answer(h, f"{internal_reason}\n\n{INTERNAL_ONLY_MSG}")
+    try:
+        results = tavily_search(question)
+        if not results:
+            return write_no_answer(h, f"{internal_reason}\n외부 검색 결과도 없음")
+        text, _ = answerer.generate_external(question, results)
+    except Exception as e:
+        return write_no_answer(h, f"{internal_reason}\n외부 검색 실패: {e}")
+    srcs = "\n".join(f"- [{i}] {r.get('title', '')} {r.get('url', '')}" for i, r in enumerate(results, 1))
+    out = f"# [외부 검색]\n\n질문: {question}\n\n## 핵심 답변\n{text}\n\n## 외부 출처\n{srcs}\n\n{EXTERNAL_FOOTER}\n"
+    if grade == "C2":
+        out = answerer.mask_c2(out)
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    path = OUT_DIR / f"{h}_answer.md"
+    path.write_text(out, encoding="utf-8")
+    return path
 
 
 def track_memory(question, h, recent, answer_text):
@@ -108,7 +145,7 @@ def _run(question):
     start, tokens = time.time(), 0
     found = searcher.search(question)
     if found["status"] == "no_info":
-        return write_no_answer(h, f"사내 문서에는 정보 없음 (검색 폴더: {SEARCHED}, 최고 유사도 {found['top_score']:.2f} < 임계값 {found['threshold']})")
+        return external_fallback(question, h, grade, f"사내 문서에는 정보 없음 (검색 폴더: {SEARCHED}, 최고 유사도 {found['top_score']:.2f} < 임계값 {found['threshold']})")
 
     diag, result, issues = None, None, []
     for _ in range(MAX_RETRY + 1):
@@ -123,7 +160,7 @@ def _run(question):
     if issues:
         return write_no_answer(h, "검증 실패: " + "; ".join(issues))
     if "정보 없음" in result["answer"]:
-        return write_no_answer(h, f"사내 문서에는 정보 없음 (검색 폴더: {SEARCHED})")
+        return external_fallback(question, h, grade, f"사내 문서에는 정보 없음 (검색 폴더: {SEARCHED})")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     text = render(question, result, grade == "C2")
