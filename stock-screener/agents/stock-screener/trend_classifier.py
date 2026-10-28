@@ -28,6 +28,9 @@ CATEGORIES = {
     "방산": ["방산 방위산업 무기 수출 국방 예산", "defense aerospace military missile contract"],
     "클라우드": ["클라우드 SaaS 서버 소프트웨어 구독", "cloud computing SaaS software subscription"],
     "핀테크": ["핀테크 결제 전자결제 디지털 금융", "fintech payments digital payments platform"],
+    "사이버보안": ["정보보안 사이버보안 백신 랜섬웨어 해킹 침해사고 보안 솔루션",
+               "cybersecurity ransomware data breach endpoint security threat detection",
+               "네트워크 보안", "보안 솔루션", "백신·보안"],
 }
 MACRO_THEMES = {"금리"}  # 섹터 게이트 예외 (모든 섹터 허용)
 # 섹터 게이트가 없는 매크로 테마는 임의 매칭을 막기 위해 기사 본문에 핵심어가 실제로 있어야 인정한다
@@ -123,6 +126,8 @@ def sector_allows(theme: str, sector: str, industry: str) -> bool:
         return sec == "healthcare"
     if theme == "방산":
         return "aerospace & defense" in ind
+    if theme == "사이버보안":
+        return sec == "technology" and "software - infrastructure" in ind
     if theme == "핀테크":
         if any(x in ind for x in FIN_EXCLUDED):
             return False

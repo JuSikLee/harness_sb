@@ -1,0 +1,72 @@
+[
+ {
+  "date": "2026-10-28",
+  "ticker": "053800.KQ",
+  "name": "AhnLab, Inc.",
+  "reason": "3분기 영업이익 38.7% 증가와 네트워크 보안 사업의 세 자릿수 성장이 상승 배경으로 보도됨.",
+  "price": 110900.0,
+  "currency": "KRW",
+  "ret_1w": null,
+  "ret_1m": null
+ },
+ {
+  "date": "2026-10-28",
+  "ticker": "UPS",
+  "name": "United Parcel Service",
+  "reason": "3분기 실적 발표 후 연간 가이던스를 상향하고 매출 성장률이 6.7%로 확인되어 상승함",
+  "price": 106.08999633789062,
+  "currency": "USD",
+  "ret_1w": null,
+  "ret_1m": null
+ },
+ {
+  "date": "2026-10-28",
+  "ticker": "CINF",
+  "name": "Cincinnati Financial",
+  "reason": "3분기 실적이 추정치를 상회했고, 투자수익 10.2% 증가와 이전 사고연도 준비금 호조 발전이 주가 상승 요인으로 보도됨.",
+  "price": 181.41000366210938,
+  "currency": "USD",
+  "ret_1w": null,
+  "ret_1m": null
+ },
+ {
+  "date": "2026-10-28",
+  "ticker": "CDNS",
+  "name": "Cadence Design Systems",
+  "reason": "연간 매출·EPS 가이던스 상향과 사상 최대 수준의 backlog(82억 달러) 발표가 상승 배경으로 제시됨",
+  "price": 343.0799865722656,
+  "currency": "USD",
+  "ret_1w": null,
+  "ret_1m": null
+ },
+ {
+  "date": "2026-10-28",
+  "ticker": "402340.KS",
+  "name": "SK스퀘어",
+  "reason": "SK하이닉스의 사상 최대 실적과 대규모 자사주 소각 등 주주환원 확대 기대가 지분 보유 기업 SK스퀘어 주가를 끌어올림",
+  "price": 921000.0,
+  "currency": "KRW",
+  "ret_1w": null,
+  "ret_1m": null
+ },
+ {
+  "date": "2026-10-28",
+  "ticker": "108490.KQ",
+  "name": "ROBOTIS Co., Ltd.",
+  "reason": "LS증권 목표주가 상향과 2027년 매출·영업이익 성장 전망, 우즈베키스탄 신공장 가동 계획이 투자심리를 자극함",
+  "price": 275500.0,
+  "currency": "KRW",
+  "ret_1w": null,
+  "ret_1m": null
+ },
+ {
+  "date": "2026-10-28",
+  "ticker": "JCI",
+  "name": "Johnson Controls",
+  "reason": "분기 실적에서 유기적 매출 12% 성장과 조정 EBIT 마진 300bp 확대가 발표되며 상승 배경으로 보도됨.",
+  "price": 155.8800048828125,
+  "currency": "USD",
+  "ret_1w": null,
+  "ret_1m": null
+ }
+]
