@@ -1,0 +1,10 @@
+yfinance
+tavily-python
+pandas
+python-docx
+anthropic
+scikit-learn
+sentence-transformers
+pykrx
+beautifulsoup4
+lxml
