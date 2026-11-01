@@ -68,5 +68,85 @@
   "currency": "USD",
   "ret_1w": null,
   "ret_1m": null
+ },
+ {
+  "date": "2026-10-30",
+  "ticker": "128940.KS",
+  "name": "한미약품",
+  "reason": "비만치료제 에페글레나타이드의 국내 출시 기대감과 증권사 목표주가 유지 이후 매수세가 유입됐다.",
+  "price": 415000.0,
+  "currency": "KRW",
+  "ret_1w": null,
+  "ret_1m": null
+ },
+ {
+  "date": "2026-10-30",
+  "ticker": "NCLH",
+  "name": "Norwegian Cruise Line Holdings",
+  "reason": "분기 실적 상회와 가이던스 상향이 발표되며 주가가 급등한 것으로 보도됨",
+  "price": 18.219999313354492,
+  "currency": "USD",
+  "ret_1w": null,
+  "ret_1m": null
+ },
+ {
+  "date": "2026-10-30",
+  "ticker": "TXT",
+  "name": "Textron",
+  "reason": "2026년 3분기 매출 37.5억 달러(전년 대비 증가)와 함께 연간 GAAP 실적 전망을 상향 조정했다고 보도됨.",
+  "price": 87.45999908447266,
+  "currency": "USD",
+  "ret_1w": null,
+  "ret_1m": null
+ },
+ {
+  "date": "2026-10-30",
+  "ticker": "WST",
+  "name": "West Pharmaceutical Services",
+  "reason": "3분기 실적 호조(HVP 강세)와 2026년 가이던스 상향이 주가 상승 배경으로 보도됨.",
+  "price": 416.6700134277344,
+  "currency": "USD",
+  "ret_1w": null,
+  "ret_1m": null
+ },
+ {
+  "date": "2026-10-30",
+  "ticker": "LHX",
+  "name": "L3Harris",
+  "reason": "3분기 실적이 추정치를 상회하고 수주잔고 증가·이익 전망 상향이 발표되며 주가가 상승했다.",
+  "price": 278.42999267578125,
+  "currency": "USD",
+  "ret_1w": null,
+  "ret_1m": null
+ },
+ {
+  "date": "2026-10-30",
+  "ticker": "CVNA",
+  "name": "Carvana",
+  "reason": "Root와의 파트너십 소식 등이 상승 계기로 보도되었으나 기사 내용이 제한적임",
+  "price": 68.30999755859375,
+  "currency": "USD",
+  "ret_1w": null,
+  "ret_1m": null
+ },
+ {
+  "date": "2026-10-30",
+  "ticker": "HII",
+  "name": "Huntington Ingalls Industries",
+  "reason": "3분기 실적이 예상치를 상회하고 전망을 상향했으며, 함정·무인해상정 수요가 강하다는 점이 보도됨.",
+  "price": 316.2099914550781,
+  "currency": "USD",
+  "ret_1w": null,
+  "ret_1m": null
+ },
+ {
+  "date": "2026-10-30",
+  "ticker": "002840.KS",
+  "name": "미원상사",
+  "reason": "10/29 자사주 매입 결정과 분기배당 결정이 주주환원 확대 기대를 부각시킨 것으로 보도되었습니다.",
+  "price": 137900.0,
+  "currency": "KRW",
+  "ret_1w": null,
+  "ret_1m": null
  }
 ]
