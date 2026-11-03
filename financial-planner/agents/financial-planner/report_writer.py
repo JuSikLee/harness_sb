@@ -1,6 +1,6 @@
 """report_writer.py - output/financial-plan/{YYYYMMDD}_plan_{NN}.docx 작성 (python-docx).
 
-규칙: 첫 줄·마지막 줄 면책 문구 / 첫 페이지 '가정값' 섹션 / 4개 표 필수 /
+규칙: 첫 줄·마지막 줄 면책 문구 / '가정값' 섹션(첫 페이지) / 4개 표 필수 /
 구체 상품명·종목코드·금융회사명·세금 단정 수치 금지. 모든 수치는 호출자가 파이썬으로 계산해 넘긴다.
 """
 from __future__ import annotations
@@ -14,6 +14,7 @@ from docx.shared import Pt
 
 from profile_loader import ROOT, format_won
 
+ASSUMPTION_HEADING = "가정값"
 DISCLAIMER = "본 자료는 정보 제공 목적이며 투자 권유나 재무 자문이 아닙니다. 정확한 자문은 면허 받은 재무설계사·세무사에게 문의하세요"
 OUTPUT_DIR = ROOT / "output" / "financial-plan"
 FONT = "맑은 고딕"
@@ -42,6 +43,20 @@ def _style_doc(doc: Document) -> None:
         s = doc.styles[name]
         s.font.name = FONT
         s.element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
+
+
+def assumption_rows(assum: dict, prof: dict, ret: dict, port: dict) -> list[list[str]]:
+    """가정값 표의 행 [항목, 값, 비고]. 리포트 작성과 main.verify_docx 검증이 같은 정의를 공유한다."""
+    rows = [
+        ["물가상승률", f"연 {assum['inflation'] * 100:.1f}%", "노후 필요 자금의 인플레이션 누적계수에 사용"],
+        ["노후 기간", f"{assum['duration_years']}년", f"{prof['retirement_age']}세 은퇴 시 {prof['retirement_age'] + assum['duration_years']}세까지"],
+        ["은퇴까지 기간", f"{ret['years_to_retire']}년", f"{prof['age']}세 → {prof['retirement_age']}세"],
+    ]
+    for cls, r in assum["returns"].items():
+        extra = " (인플레이션 헤지 가정)" if cls == "부동산" else ""
+        rows.append([f"기대수익률 - {cls}", f"연 {r * 100:.1f}%", f"자산군 기대수익률{extra}"])
+    rows.append(["가중평균 기대수익률", f"연 {port['weighted_return'] * 100:.3f}%", "권장 포트폴리오 비중 기준 (권장안으로 재배분했다고 가정)"])
+    return rows
 
 
 def _table(doc: Document, header: list[str], rows: list[list[str]], bold_last: bool = False) -> None:
@@ -76,18 +91,10 @@ def write_report(data: dict, path: Path) -> Path:
     doc.add_heading("개인 자산 진단 및 노후 계획 보고서", level=0)
     doc.add_paragraph(f"작성일: {today.isoformat()}  |  자동 거래·상품 추천 없음 (자산군별 가이드만 제공)")
 
-    # ── 가정값 (첫 페이지 의무) ───────────────────────────────────
-    doc.add_heading("가정값", level=1)
+    # ── 가정값 (첫 페이지) ────────────────────────────────────────
+    doc.add_heading(ASSUMPTION_HEADING, level=1)
     doc.add_paragraph(f"가정 프로필: {assum['profile']} (환경변수 ASSUMPTION_PROFILE로 보수/표준/낙관 전환)")
-    rows = [
-        ["물가상승률", f"연 {assum['inflation'] * 100:.1f}%", "노후 필요 자금의 인플레이션 누적계수에 사용"],
-        ["노후 기간", f"{assum['duration_years']}년", f"{prof['retirement_age']}세 은퇴 시 {prof['retirement_age'] + assum['duration_years']}세까지"],
-        ["은퇴까지 기간", f"{ret['years_to_retire']}년", f"{prof['age']}세 → {prof['retirement_age']}세"],
-    ]
-    for cls, r in assum["returns"].items():
-        extra = " (인플레이션 헤지 가정)" if cls == "부동산" else ""
-        rows.append([f"기대수익률 - {cls}", f"연 {r * 100:.1f}%", f"자산군 기대수익률{extra}"])
-    rows.append(["가중평균 기대수익률", f"연 {port['weighted_return'] * 100:.3f}%", "권장 포트폴리오 비중 기준 (권장안으로 재배분했다고 가정)"])
+    rows = assumption_rows(assum, prof, ret, port)
     _table(doc, ["항목", "값", "비고"], rows)
     doc.add_paragraph(f"{CITE_RETIREMENT} {CITE_PORTFOLIO}")
     for s in (

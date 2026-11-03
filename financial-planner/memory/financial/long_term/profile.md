@@ -1,6 +1,6 @@
 # 사용자 프로필
 
-최종 갱신: 2026-11-02
+최종 갱신: 2026-11-03
 
 ```json
 {
@@ -17,7 +17,7 @@
   "monthly_expense": 4000000,
   "monthly_saving_current": 0,
   "monthly_savable": 3000000,
-  "retirement_monthly_expense": 5000000,
+  "retirement_monthly_expense": 3000000,
   "risk_tolerance": "공격"
 }
 ```
@@ -27,3 +27,4 @@
 - 2026-11-02: risk_tolerance: "중립" → "공격"
 - 2026-11-02: current_assets: {"국내 주식": 60000000, "해외 주식": 40000000, "현금성 자산": 200000000, "부동산": 200000000} → {"국내 주식": 60000000, "해외 주식": 40000000, "부동산": 200000000, "미분류": 200000000}
 - 2026-11-02: retirement_monthly_expense: 3000000 → 5000000
+- 2026-11-03: retirement_monthly_expense: 5000000 → 3000000

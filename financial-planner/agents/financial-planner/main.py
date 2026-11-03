@@ -67,10 +67,27 @@ def validate_gap(g: dict, savable: int):
     return True, "OK"
 
 
-def verify_docx(path: Path, portfolio: dict) -> list[str]:
-    """생성된 .docx 재검증: 면책 첫·마지막 줄, 가정값 섹션, 비중 합계 100%, 금지 고유명사."""
+def _assumption_table(doc):
+    """'가정값' 제목 바로 뒤에 오는 첫 표(없으면 None)."""
+    from docx.table import Table
+    from docx.text.paragraph import Paragraph
+    seen = False
+    for el in doc.element.body.iterchildren():
+        if el.tag.endswith("}p"):
+            para = Paragraph(el, doc)
+            if para.style.name.startswith("Heading") and para.text.strip() == report_writer.ASSUMPTION_HEADING:
+                seen = True
+        elif el.tag.endswith("}tbl") and seen:
+            return Table(el, doc)
+    return None
+
+
+def verify_docx(path: Path, data: dict) -> list[str]:
+    """생성된 .docx를 실제로 열어 재검증: 면책 첫·마지막 줄, 가정값 섹션(물가상승률·자산군별 기대수익률·기간 항목과 값),
+    비중 합계 100%, 금지 고유명사."""
     from docx import Document
 
+    portfolio = data["portfolio"]
     doc = Document(str(path))
     fails: list[str] = []
     paras = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
@@ -78,14 +95,17 @@ def verify_docx(path: Path, portfolio: dict) -> list[str]:
         fails.append("첫 줄 면책 문구 누락")
     if not paras or paras[-1] != report_writer.DISCLAIMER:
         fails.append("마지막 줄 면책 문구 누락")
-    headings = [p.text.strip() for p in doc.paragraphs if p.style.name.startswith("Heading")]
-    if "가정값" not in headings:
-        fails.append("'가정값' 섹션 없음")
+    at = _assumption_table(doc)
+    if at is None:
+        fails.append("'가정값' 섹션/표 없음")
     else:
-        full = "\n".join(c.text for t in doc.tables for r in t.rows for c in r.cells)
-        for key in ("물가상승률", "기대수익률", "노후 기간"):
-            if key not in full:
-                fails.append(f"가정값 항목 누락: {key}")
+        found = {r.cells[0].text.strip(): r.cells[1].text.strip() for r in at.rows[1:]}
+        expected = report_writer.assumption_rows(data["assumptions"], data["profile"], data["retirement"], portfolio)
+        for label, value, _ in expected:  # 물가상승률 · 자산군별 기대수익률 · 노후 기간 · 은퇴까지 기간 · 가중평균
+            if label not in found:
+                fails.append(f"가정값 항목 누락: {label}")
+            elif found[label] != value:
+                fails.append(f"가정값 값 불일치: {label} (문서 {found[label]} / 계산 {value})")
     pt = next((t for t in doc.tables if t.rows[0].cells[0].text == "자산군" and t.rows[0].cells[1].text == "권장 비중"), None)
     if pt is None:
         fails.append("권장 포트폴리오 표 없음")
@@ -202,7 +222,7 @@ def run(request: str, confirm_assumptions: bool = False) -> int:
     out_path = report_writer.next_output_path(today)
     for _ in range(MAX_RETRY):
         report_writer.write_report(data, out_path)
-        fails = verify_docx(out_path, portfolio)
+        fails = verify_docx(out_path, data)
         if not fails:
             break
     else:
