@@ -7,7 +7,7 @@ system_prompt.md / retry_policy.md / guardrails.md / memory_policy.md / architec
 
 ## 입출력
 - 입력: /home/prime/harness_sb/harness-book-samples/card-insight/card_expense_202604.xlsx · card_expense_202605.xlsx (샘플) 또는 /home/prime/harness_sb/card-insight/ 폴더 (카드사에서 다운로드한 .csv/.xlsx)
-- 출력: output/card-report/{YYYYMMDD}_report_{NN}.docx
+- 출력: output/card-report/{YYYYMMDD}_card_report_{NN}.docx
 
 ## 핵심 원칙 (절대 금지)
 - PII 마스킹: 이름·카드번호·전화번호 자동 가림
